@@ -1,3 +1,6 @@
+import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client/react'
+
 import UserHeader from '../components/UserHeaderForGraphQL'
 import ReposList from '../components/ReposListForGraphQL'
 
@@ -7,9 +10,37 @@ import ReposList from '../components/ReposListForGraphQL'
  * We're doing it this way for ease of demonstration only.
  */
 const token = import.meta.env.VITE_GITHUB_TOKEN
-const login = 'octocat'
+const login = 'robwhess'
+
+const getUserDataQuery = gql`
+  query userDashboardData($login: String!) {
+    user(login: $login) {
+        name
+        url
+        avatarUrl(size: 64)
+        repositories(first: 10) {
+            nodes {
+                name
+                url
+                issues(first: 3) {
+                    nodes {
+                        title
+                        url
+                        createdAt
+                    }
+                }
+            }
+        }
+    }
+}
+`
 
 export default function UserIssuesDashboard() {
+  const { data, loading, error } = useQuery(getUserDataQuery, {
+    variables: { login: login }
+  })
+  console.log("== data:", data)
+  console.log("== error:", error)
   return (
     <div>
       {token ? (

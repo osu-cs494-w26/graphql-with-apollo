@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { gql } from '@apollo/client'
+import { useMutation } from '@apollo/client/react'
 
 import Button from '../components/Button'
 
@@ -10,15 +12,41 @@ import Button from '../components/Button'
 const token = import.meta.env.VITE_GITHUB_TOKEN
 const login = 'robwhess'
 
+const changeUserStatusMutation = gql`
+  mutation changeUserStatus(
+    $emoji: String!,
+    $message: String!
+  ) {
+    changeUserStatus(input: {
+        clientMutationId: "cs494Lecture",
+        emoji: $emoji,
+        message: $message
+    }) {
+        status {
+            updatedAt
+        }
+    }
+}
+`
+
 export default function ChangeUserStatus() {
   const [ emoji, setEmoji ] = useState("")
   const [ message, setMessage ] = useState("")
+  const [ mutation, { data } ] = useMutation(changeUserStatusMutation)
+
+  console.log("== data:", data)
 
   return (
     <div>
       {token ? (
         <form className="p-2" onSubmit={(e) => {
           e.preventDefault()
+          mutation({
+            variables: {
+              emoji: emoji,
+              message: message
+            }
+          })
           setEmoji("")
           setMessage("")
         }}>
